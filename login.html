@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GERADOR_TONY · Login</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; overflow: hidden;
+  }
+  body::before {
+    content:''; position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(120,80,255,.3), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(255,80,180,.25), transparent 40%);
+    pointer-events:none;
+  }
+  .card {
+    position: relative;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 45px 40px;
+    width: 100%; max-width: 420px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  }
+  .logo {
+    text-align: center; margin-bottom: 30px;
+  }
+  .logo-icon {
+    width: 70px; height: 70px;
+    background: linear-gradient(135deg, #7b5cff, #ff5cab);
+    border-radius: 20px;
+    margin: 0 auto 15px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    box-shadow: 0 10px 30px rgba(123,92,255,0.4);
+  }
+  h1 {
+    font-size: 26px; letter-spacing: 2px;
+    background: linear-gradient(90deg, #fff, #c5b3ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center; color: rgba(255,255,255,0.6);
+    font-size: 13px; margin-bottom: 30px;
+  }
+  .field { margin-bottom: 18px; }
+  label {
+    display: block; font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;
+  }
+  input {
+    width: 100%; padding: 13px 15px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px; color: #fff; font-size: 15px;
+    transition: all .25s;
+  }
+  input:focus {
+    outline: none; border-color: #7b5cff;
+    box-shadow: 0 0 0 3px rgba(123,92,255,0.2);
+  }
+  button {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #7b5cff, #ff5cab);
+    border: none; border-radius: 10px;
+    color: #fff; font-size: 15px; font-weight: 600;
+    letter-spacing: 1px; cursor: pointer; margin-top: 10px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(123,92,255,0.4); }
+  button:active { transform: translateY(0); }
+  .error {
+    background: rgba(255, 70, 90, 0.15);
+    border: 1px solid rgba(255,70,90,0.4);
+    color: #ff8a9b; padding: 10px 14px; border-radius: 8px;
+    font-size: 13px; margin-top: 15px; display: none;
+  }
+  .warn {
+    text-align: center; margin-top: 25px;
+    color: rgba(255,255,255,0.4); font-size: 11px;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">🔐</div>
+      <h1>GERADOR_TONY</h1>
+    </div>
+    <p class="subtitle">Acesso restrito — apenas o dono</p>
+
+    <form id="loginForm">
+      <div class="field">
+        <label>Usuário</label>
+        <input type="text" name="username" autocomplete="username" required autofocus />
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" name="password" autocomplete="current-password" required />
+      </div>
+      <button type="submit">ENTRAR</button>
+      <div class="error" id="errorBox"></div>
+    </form>
+
+    <p class="warn">⚠️ Tentativas de acesso são monitoradas</p>
+  </div>
+
+<script>
+const form = document.getElementById('loginForm');
+const errorBox = document.getElementById('errorBox');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorBox.style.display = 'none';
+
+  const username = form.username.value.trim();
+  const password = form.password.value;
+
+  try {
+    const res = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      window.location.href = data.redirect;
+    } else {
+      errorBox.textContent = data.message || 'Acesso negado';
+      errorBox.style.display = 'block';
+    }
+  } catch (err) {
+    errorBox.textContent = 'Erro de conexão com o servidor';
+    errorBox.style.display = 'block';
+  }
+});
+</script>
+</body>
+</html>

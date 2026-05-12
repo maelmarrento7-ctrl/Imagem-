@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GERADOR_TONY · Painel</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    min-height: 100vh;
+    background: #0a0a14;
+    color: #fff;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 30px;
+    background: linear-gradient(90deg, rgba(123,92,255,0.15), rgba(255,92,171,0.15));
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    position: sticky; top: 0; z-index: 10; backdrop-filter: blur(15px);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #7b5cff, #ff5cab);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .brand h1 {
+    font-size: 18px; letter-spacing: 1.5px;
+    background: linear-gradient(90deg, #fff, #c5b3ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .badge {
+    font-size: 11px; padding: 4px 10px;
+    background: rgba(123,92,255,0.2);
+    border: 1px solid rgba(123,92,255,0.4);
+    border-radius: 50px; color: #c5b3ff;
+  }
+  .logout {
+    padding: 8px 16px; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px; color: #fff; text-decoration: none;
+    font-size: 13px; transition: all .2s;
+  }
+  .logout:hover { background: rgba(255,70,90,0.2); border-color: rgba(255,70,90,0.4); }
+
+  .container {
+    display: grid; grid-template-columns: 380px 1fr;
+    gap: 25px; padding: 25px; max-width: 1500px; margin: 0 auto;
+  }
+  @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; padding: 25px;
+  }
+  .panel h2 {
+    font-size: 15px; margin-bottom: 20px;
+    color: #c5b3ff; letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  .field { margin-bottom: 18px; }
+  label {
+    display: block; font-size: 12px;
+    color: rgba(255,255,255,0.6); margin-bottom: 7px;
+  }
+  textarea, select, input[type="number"] {
+    width: 100%; padding: 12px 14px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px; color: #fff; font-size: 14px;
+    font-family: inherit; resize: vertical;
+  }
+  textarea { min-height: 100px; }
+  textarea:focus, select:focus, input:focus {
+    outline: none; border-color: #7b5cff;
+    box-shadow: 0 0 0 3px rgba(123,92,255,0.15);
+  }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  button.primary {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #7b5cff, #ff5cab);
+    border: none; border-radius: 10px;
+    color: #fff; font-size: 14px; font-weight: 600;
+    letter-spacing: 1px; cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+  }
+  button.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(123,92,255,0.4); }
+  button.primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .preset {
+    padding: 5px 10px; font-size: 11px;
+    background: rgba(123,92,255,0.15);
+    border: 1px solid rgba(123,92,255,0.3);
+    border-radius: 20px; cursor: pointer; color: #c5b3ff;
+  }
+  .preset:hover { background: rgba(123,92,255,0.3); }
+
+  .result {
+    min-height: 500px;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    background: rgba(0,0,0,0.3);
+    border: 2px dashed rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 25px;
+    position: relative;
+  }
+  .result img {
+    max-width: 100%; max-height: 700px;
+    border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+  .empty { text-align: center; color: rgba(255,255,255,0.4); }
+  .empty .icon { font-size: 64px; margin-bottom: 15px; }
+
+  .loader {
+    width: 60px; height: 60px;
+    border: 4px solid rgba(255,255,255,0.1);
+    border-top-color: #7b5cff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .actions {
+    display: flex; gap: 10px; margin-top: 15px;
+    width: 100%; justify-content: center;
+  }
+  .actions a, .actions button {
+    padding: 9px 16px; font-size: 13px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px; color: #fff; text-decoration: none;
+    cursor: pointer;
+  }
+  .actions a:hover, .actions button:hover { background: rgba(123,92,255,0.2); }
+
+  .history { margin-top: 25px; }
+  .history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+  .history-grid img {
+    width: 100%; aspect-ratio: 1;
+    object-fit: cover; border-radius: 8px;
+    cursor: pointer; transition: transform .2s;
+  }
+  .history-grid img:hover { transform: scale(1.05); }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🎨</div>
+      <h1>GERADOR_TONY</h1>
+      <span class="badge">👑 OWNER</span>
+    </div>
+    <a href="/logout" class="logout">Sair</a>
+  </header>
+
+  <div class="container">
+    <!-- PAINEL ESQUERDO: Controles -->
+    <aside class="panel">
+      <h2>⚙️ Configurações</h2>
+
+      <div class="field">
+        <label>Descreva a imagem (em inglês funciona melhor)</label>
+        <textarea id="prompt" placeholder="Ex: a cyberpunk cat wearing sunglasses, neon city background, ultra detailed"></textarea>
+        <div class="presets">
+          <span class="preset" data-prompt="a majestic lion in the savanna, golden hour, photorealistic">🦁 Leão</span>
+          <span class="preset" data-prompt="cyberpunk city at night, neon lights, rain, ultra detailed">🌃 Cidade Cyberpunk</span>
+          <span class="preset" data-prompt="cute anime girl with pink hair, studio ghibli style">🎌 Anime</span>
+          <span class="preset" data-prompt="astronaut riding a horse on mars, cinematic">🚀 Astronauta</span>
+          <span class="preset" data-prompt="enchanted forest with glowing mushrooms, fantasy art">🌲 Floresta</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Modelo de IA</label>
+        <select id="model">
+          <option value="flux">Flux (recomendado)</option>
+          <option value="flux-realism">Flux Realism (fotográfico)</option>
+          <option value="flux-anime">Flux Anime</option>
+          <option value="flux-3d">Flux 3D</option>
+          <option value="turbo">Turbo (rápido)</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Largura</label>
+          <input type="number" id="width" value="1024" min="256" max="1920" step="64" />
+        </div>
+        <div class="field">
+          <label>Altura</label>
+          <input type="number" id="height" value="1024" min="256" max="1920" step="64" />
+        </div>
+      </div>
+
+      <button class="primary" id="generateBtn">✨ GERAR IMAGEM</button>
+    </aside>
+
+    <!-- PAINEL DIREITO: Resultado -->
+    <main>
+      <div class="panel">
+        <h2>🖼️ Resultado</h2>
+        <div class="result" id="result">
+          <div class="empty">
+            <div class="icon">🎨</div>
+            <p>Descreva uma imagem ao lado e clique em <strong>Gerar</strong></p>
+            <p style="font-size:12px; margin-top:8px; opacity:.6;">As imagens geradas aparecerão aqui</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel history" id="historyPanel" style="display:none;">
+        <h2>📚 Histórico desta sessão</h2>
+        <div class="history-grid" id="historyGrid"></div>
+      </div>
+    </main>
+  </div>
+
+<script>
+const generateBtn = document.getElementById('generateBtn');
+const resultBox = document.getElementById('result');
+const historyPanel = document.getElementById('historyPanel');
+const historyGrid = document.getElementById('historyGrid');
+const history = [];
+
+// Presets
+document.querySelectorAll('.preset').forEach(p => {
+  p.addEventListener('click', () => {
+    document.getElementById('prompt').value = p.dataset.prompt;
+  });
+});
+
+async function generate() {
+  const prompt = document.getElementById('prompt').value.trim();
+  if (!prompt) { alert('Digite uma descrição da imagem!'); return; }
+
+  const width = document.getElementById('width').value;
+  const height = document.getElementById('height').value;
+  const model = document.getElementById('model').value;
+
+  generateBtn.disabled = true;
+  generateBtn.textContent = '⏳ GERANDO...';
+  resultBox.innerHTML = '<div class="loader"></div><p style="margin-top:20px;color:rgba(255,255,255,0.6);">Gerando sua imagem com IA...</p>';
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, width, height, model })
+    });
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.error || 'Falha ao gerar');
+
+    // Pré-carrega a imagem antes de exibir
+    const img = new Image();
+    img.onload = () => {
+      resultBox.innerHTML = '';
+      const imgEl = document.createElement('img');
+      imgEl.src = data.imageUrl;
+      resultBox.appendChild(imgEl);
+
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+      actions.innerHTML = `
+        <a href="${data.imageUrl}" download="gerador_tony_${Date.now()}.jpg" target="_blank">⬇️ Baixar</a>
+        <a href="${data.imageUrl}" target="_blank">🔗 Abrir</a>
+        <button onclick="navigator.clipboard.writeText('${data.imageUrl}').then(()=>alert('Link copiado!'))">📋 Copiar link</button>
+      `;
+      resultBox.appendChild(actions);
+
+      // Adiciona ao histórico
+      history.unshift(data.imageUrl);
+      renderHistory();
+
+      generateBtn.disabled = false;
+      generateBtn.textContent = '✨ GERAR IMAGEM';
+    };
+    img.onerror = () => {
+      resultBox.innerHTML = '<p style="color:#ff8a9b;">❌ Falha ao carregar a imagem. Tente novamente.</p>';
+      generateBtn.disabled = false;
+      generateBtn.textContent = '✨ GERAR IMAGEM';
+    };
+    img.src = data.imageUrl;
+
+  } catch (err) {
+    resultBox.innerHTML = `<p style="color:#ff8a9b;">❌ Erro: ${err.message}</p>`;
+    generateBtn.disabled = false;
+    generateBtn.textContent = '✨ GERAR IMAGEM';
+  }
+}
+
+function renderHistory() {
+  if (history.length === 0) { historyPanel.style.display = 'none'; return; }
+  historyPanel.style.display = 'block';
+  historyGrid.innerHTML = '';
+  history.slice(0, 12).forEach(url => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.onclick = () => window.open(url, '_blank');
+    historyGrid.appendChild(img);
+  });
+}
+
+generateBtn.addEventListener('click', generate);
+document.getElementById('prompt').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) generate();
+});
+</script>
+</body>
+</html>
